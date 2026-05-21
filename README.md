@@ -103,7 +103,7 @@ Las zonas son las cinco que pide el laboratorio: `ZonaArribo`, `RecintoCentral`,
 
 Toda la informacion financiera y los eventos quedan persistidos en tres tablas administradas por Liquibase.
 
-# Patrones de diseno
+# Patrones de diseño
 
 # Singleton
 
