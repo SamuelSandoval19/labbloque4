@@ -12,7 +12,8 @@ import java.util.List;
 
 public class HoraOfertas implements EventoAleatorio {
 
-    private static final BigDecimal DESCUENTO = new BigDecimal("0.50");
+    private static final BigDecimal PORCENTAJE_DESCUENTO = new BigDecimal("0.30");
+    private static final BigDecimal MULTIPLICADOR_PRECIO = BigDecimal.ONE.subtract(PORCENTAJE_DESCUENTO);
 
     private String descripcionGenerada;
 
@@ -33,7 +34,7 @@ public class HoraOfertas implements EventoAleatorio {
     @Override
     public void ejecutar(Parque parque) {
         BigDecimal precioOferta = parque.getRecintoCentral().getPrecioSouvenir()
-                .multiply(DESCUENTO)
+                .multiply(MULTIPLICADOR_PRECIO)
                 .setScale(2, RoundingMode.HALF_UP);
 
         List<Turista> dentro = parque.getTuristas().stream()
@@ -57,6 +58,6 @@ public class HoraOfertas implements EventoAleatorio {
         }
 
         descripcionGenerada = "Hora de ofertas, " + souvenirsVendidos
-                + " souvenirs vendidos al 50%, ingreso " + totalIngreso;
+                + " souvenirs vendidos con 30% de descuento, ingreso " + totalIngreso;
     }
 }

@@ -47,15 +47,15 @@ public class FallaVehiculos implements EventoAleatorio {
         for (int i = 0; i < aAveriarse; i++) {
             Vehiculo afectado = operativos.get(i);
             afectado.averiar();
-            afectado.reparar();
             costoTotal = costoTotal.add(costoUnitario);
         }
 
         parque.registrarGasto(
                 TipoGasto.REPARACION_VEHICULO,
-                "Reparacion de " + aAveriarse + " vehiculos averiados",
+                "Costo de reparacion proyectado para " + aAveriarse + " vehiculos averiados",
                 costoTotal);
 
-        descripcionGenerada = aAveriarse + " vehiculos averiados y reparados, costo total " + costoTotal;
+        descripcionGenerada = aAveriarse + " vehiculos averiados, quedan fuera de servicio durante "
+                + "varios pasos. Costo proyectado: " + costoTotal;
     }
 }

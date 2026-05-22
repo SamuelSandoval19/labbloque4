@@ -63,6 +63,8 @@ public class MotorSimulacion {
         moverTuristasActivos();
         consumirEnergia();
         avanzarSanitarios();
+        avanzarReparacionVehiculos();
+        atenderPlantaEnFalla();
         atenderRecintosObservacion();
         revisarEventoAleatorio();
         sacarTuristasSatisfechos();
@@ -70,6 +72,43 @@ public class MotorSimulacion {
         if (pasoActual % intervaloMonitoreo == 0) {
             parque.publicarReporte(pasoActual);
         }
+    }
+
+    private void avanzarReparacionVehiculos() {
+        for (var vehiculo : parque.getVehiculos()) {
+            vehiculo.avanzarReparacion();
+        }
+    }
+
+    private void atenderPlantaEnFalla() {
+        if (!parque.getPlantaEnergia().estaEnFalla()) {
+            return;
+        }
+        var trabajadorDisponible = parque.getTrabajadores().stream()
+                .filter(t -> t.estaDisponible())
+                .findFirst();
+        var vehiculoDisponible = parque.getVehiculos().stream()
+                .filter(v -> v.estaDisponible())
+                .findFirst();
+
+        if (trabajadorDisponible.isEmpty() || vehiculoDisponible.isEmpty()) {
+            return;
+        }
+
+        var tecnico = trabajadorDisponible.get();
+        var vehiculo = vehiculoDisponible.get();
+        tecnico.asignarTarea();
+        vehiculo.ponerEnUso();
+
+        BigDecimal costo = parque.getPlantaEnergia().realizarMantenimiento();
+        parque.registrarGasto(
+                com.parque.dinosaurios.modelo.enumeraciones.TipoGasto.REPARACION_PLANTA,
+                "Reparacion de planta por " + tecnico.getNombre()
+                        + " con vehiculo " + vehiculo.getIdentificador(),
+                costo);
+
+        vehiculo.liberar();
+        tecnico.liberar();
     }
 
     private void atenderEntrada() {
@@ -164,7 +203,7 @@ public class MotorSimulacion {
     private void usarVehiculoAleatorio() {
         List<Vehiculo> disponibles = new ArrayList<>();
         for (Vehiculo vehiculo : parque.getVehiculos()) {
-            if (vehiculo.estaOperativo() && !vehiculo.estaEnUso()) {
+            if (vehiculo.estaDisponible()) {
                 disponibles.add(vehiculo);
             }
         }

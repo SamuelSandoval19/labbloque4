@@ -152,8 +152,10 @@ public final class Parque extends SujetoObservable {
 
     private void poblarVehiculos(int cantidad) {
         String[] tipos = {"Jeep", "Buggy", "Camioneta"};
+        int pasosReparacion = ConfiguracionParque.obtenerInstancia()
+                .obtenerEntero("parque.vehiculos.pasos.reparacion");
         for (int i = 1; i <= cantidad; i++) {
-            vehiculos.add(new Vehiculo(i, tipos[(i - 1) % tipos.length]));
+            vehiculos.add(new Vehiculo(i, tipos[(i - 1) % tipos.length], pasosReparacion));
         }
     }
 

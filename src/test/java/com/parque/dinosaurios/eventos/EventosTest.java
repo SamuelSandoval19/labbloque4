@@ -33,14 +33,14 @@ class EventosTest {
     }
 
     @Test
-    void apagonMasivoProvocaFallaYRegistraGasto() {
-        var antes = parque.getGastoAcumulado();
+    void apagonMasivoProvocaFallaPeroNoReparaInmediatamente() {
         ApagonMasivo apagon = new ApagonMasivo();
         apagon.ejecutar(parque);
 
         assertEquals(TipoEvento.APAGON_MASIVO, apagon.getTipo());
         assertNotNull(apagon.getDescripcion());
-        assertTrue(parque.getGastoAcumulado().compareTo(antes) > 0);
+        assertTrue(parque.getPlantaEnergia().estaEnFalla());
+        assertTrue(apagon.getDescripcion().contains("tecnico"));
     }
 
     @Test
@@ -72,17 +72,19 @@ class EventosTest {
     }
 
     @Test
-    void fallaVehiculosAveriaYRepara() {
+    void fallaVehiculosDejaVehiculosAveriados() {
         FallaVehiculos falla = new FallaVehiculos();
         var antesGasto = parque.getGastoAcumulado();
         falla.ejecutar(parque);
 
         assertEquals(TipoEvento.FALLA_DE_VEHICULOS, falla.getTipo());
         assertNotNull(falla.getDescripcion());
-        assertTrue(parque.getGastoAcumulado().compareTo(antesGasto) >= 0);
-        for (Vehiculo v : parque.getVehiculos()) {
-            assertTrue(v.estaOperativo());
-        }
+        assertTrue(parque.getGastoAcumulado().compareTo(antesGasto) > 0);
+
+        long averiados = parque.getVehiculos().stream()
+                .filter(Vehiculo::estaAveriado)
+                .count();
+        assertTrue(averiados >= 1);
     }
 
     @Test
@@ -100,5 +102,23 @@ class EventosTest {
         for (TipoEvento t : TipoEvento.values()) {
             assertNotNull(t.name());
         }
+    }
+
+    @Test
+    void horaDeOfertasUsaDescuentoDel30() {
+        for (int i = 0; i < 3; i++) {
+            parque.getTuristas().get(i).setEstado(
+                    com.parque.dinosaurios.modelo.enumeraciones.EstadoTurista.DENTRO_DEL_PARQUE);
+        }
+        HoraOfertas hora = new HoraOfertas();
+        hora.ejecutar(parque);
+        assertTrue(hora.getDescripcion().contains("30%"));
+    }
+
+    @Test
+    void apagonDejaPlantaEnFallaParaReparacionPosterior() {
+        ApagonMasivo apagon = new ApagonMasivo();
+        apagon.ejecutar(parque);
+        assertTrue(parque.getPlantaEnergia().estaEnFalla());
     }
 }
